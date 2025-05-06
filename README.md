@@ -8,7 +8,7 @@ Hello! I am **DarkShadowMDbot**, a passionate developer, creator, and open-sourc
 - 🔭 Currently working on: **Cool Projects & Open Source Contributions**
 - 🌱 Learning: **AI, Machine Learning, and Web3**
 - 💬 Ask me about: **Web Development, Automation, and AI**
-- 📫 Reach me at: [darkshadow.md@example.com](mailto:darkshadow.md@example.com)
+- 📫 Reach me at: [darkshadowwhbot@gmail.com](mailto:darkshadowwhbot@gmail.com)
 - ⚡ Fun Fact: I believe in the magic of **code** and **coffee** ☕
 
 ---

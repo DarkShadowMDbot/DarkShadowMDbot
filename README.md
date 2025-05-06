@@ -1,46 +1,107 @@
-import datetime
-import json
+const express = require("express");
+const { Client, LocalAuth } = require("whatsapp-web.js");
+const mongoose = require("mongoose");
 
-class RedeemSystem:
-    def __init__(self):
-        # Predefined list of valid codes and their associated rewards
-        self.valid_codes = {
-            "WELCOME2025": "10% Discount",
-            "SUMMERFUN": "Free Shipping",
-            "EXTRADEAL": "Buy 1 Get 1 Free"
+// MongoDB Models
+const Code = require("./models/Code");
+const User = require("./models/User");
+
+// Initialize WhatsApp client
+const client = new Client({
+    authStrategy: new LocalAuth(),
+});
+
+client.on("qr", (qr) => {
+    console.log("Scan this QR code with WhatsApp:", qr);
+});
+
+client.on("ready", () => {
+    console.log("WhatsApp bot is ready!");
+});
+
+// Connect to MongoDB
+mongoose
+    .connect("mongodb://localhost:27017/redeemSystem", {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => console.log("Connected to MongoDB"))
+    .catch((err) => console.error("MongoDB connection error:", err));
+
+// Redeem logic
+client.on("message", async (message) => {
+    if (message.body.startsWith("!redeem ")) {
+        const codeInput = message.body.split(" ")[1];
+        const userNumber = message.from;
+
+        try {
+            // Check if code exists and is valid
+            const code = await Code.findOne({ code: codeInput });
+            if (!code) {
+                return message.reply("Invalid code. Please try again.");
+            }
+
+            // Check if code is already redeemed
+            if (code.redeemedBy) {
+                return message.reply(
+                    `Code '${codeInput}' has already been redeemed by another user.`
+                );
+            }
+
+            // Check if user has already redeemed a code
+            const user = await User.findOne({ phoneNumber: userNumber });
+            if (user && user.redeemedCodes.includes(codeInput)) {
+                return message.reply(
+                    `You have already redeemed this code: '${codeInput}'.`
+                );
+            }
+
+            // Mark code as redeemed and assign reward
+            code.redeemedBy = userNumber;
+            code.redeemedAt = new Date();
+            await code.save();
+
+            // Update user record
+            if (!user) {
+                await User.create({
+                    phoneNumber: userNumber,
+                    redeemedCodes: [codeInput],
+                });
+            } else {
+                user.redeemedCodes.push(codeInput);
+                await user.save();
+            }
+
+            message.reply(
+                `Congratulations! You have successfully redeemed the code '${codeInput}'. Reward: ${code.reward}`
+            );
+        } catch (err) {
+            console.error("Error redeeming code:", err);
+            message.reply("An error occurred. Please try again later.");
         }
-        self.redeemed_codes = {}  # Tracks redeemed codes
+    }
+});
 
-    def redeem_code(self, code):
-        current_time = datetime.datetime.now()
-        if code in self.redeemed_codes:
-            return f"Code '{code}' has already been redeemed on {self.redeemed_codes[code]}."
+// Start express server for admin interface (optional)
+const app = express();
+app.use(express.json());
 
-        if code in self.valid_codes:
-            self.redeemed_codes[code] = current_time.strftime("%Y-%m-%d %H:%M:%S")
-            reward = self.valid_codes[code]
-            return f"Code '{code}' redeemed successfully! Reward: {reward}"
-        else:
-            return f"Invalid code: '{code}'. Please try again."
+// Endpoint for creating new codes
+app.post("/create-code", async (req, res) => {
+    const { code, reward } = req.body;
 
-    def log_redeemed_codes(self):
-        # Save redeemed codes to a JSON file
-        with open("redeemed_codes_log.json", "w") as file:
-            json.dump(self.redeemed_codes, file, indent=4)
-        print("Redeemed codes logged successfully.")
+    try {
+        const newCode = await Code.create({ code, reward });
+        res.status(201).json({ success: true, data: newCode });
+    } catch (err) {
+        console.error("Error creating code:", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
 
-if __name__ == "__main__":
-    redeem_system = RedeemSystem()
-    print("Welcome to the Redeem Code System!")
+app.listen(3000, () => {
+    console.log("Admin server running on http://localhost:3000");
+});
 
-    while True:
-        user_input = input("\nEnter a redeem code (or type 'exit' to quit): ").strip()
-        if user_input.lower() == "exit":
-            break
-
-        response = redeem_system.redeem_code(user_input)
-        print(response)
-
-    # Log redeemed codes on exit
-    redeem_system.log_redeemed_codes()
-    print("Thank you for using the Redeem Code System!")
+// Start WhatsApp client
+client.initialize();

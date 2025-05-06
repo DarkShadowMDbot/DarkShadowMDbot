@@ -1,6 +1,6 @@
 # 🌟 Welcome to My GitHub Profile! 🌟
 
-![Header](https://user-images.githubusercontent.com/placeholder/banner.png) <!-- Replace with your banner image -->
+![Header](https://raw.githubusercontent.com/DarkShadowMDbot/BOT-HELPER/refs/heads/main/botmd.jpg) <!-- Replace with your banner image -->
 
 ## 🎨 About Me
 Hello! I am **DarkShadowMDbot**, a passionate developer, creator, and open-source enthusiast. I love exploring new technologies, solving problems, and building amazing things!

@@ -1,107 +1,59 @@
-const express = require("express");
-const { Client, LocalAuth } = require("whatsapp-web.js");
-const mongoose = require("mongoose");
+# 🌟 Welcome to My GitHub Profile! 🌟
 
-// MongoDB Models
-const Code = require("./models/Code");
-const User = require("./models/User");
+![Header](https://user-images.githubusercontent.com/placeholder/banner.png) <!-- Replace with your banner image -->
 
-// Initialize WhatsApp client
-const client = new Client({
-    authStrategy: new LocalAuth(),
-});
+## 🎨 About Me
+Hello! I am **DarkShadowMDbot**, a passionate developer, creator, and open-source enthusiast. I love exploring new technologies, solving problems, and building amazing things!
 
-client.on("qr", (qr) => {
-    console.log("Scan this QR code with WhatsApp:", qr);
-});
+- 🔭 Currently working on: **Cool Projects & Open Source Contributions**
+- 🌱 Learning: **AI, Machine Learning, and Web3**
+- 💬 Ask me about: **Web Development, Automation, and AI**
+- 📫 Reach me at: [darkshadow.md@example.com](mailto:darkshadow.md@example.com)
+- ⚡ Fun Fact: I believe in the magic of **code** and **coffee** ☕
 
-client.on("ready", () => {
-    console.log("WhatsApp bot is ready!");
-});
+---
 
-// Connect to MongoDB
-mongoose
-    .connect("mongodb://localhost:27017/redeemSystem", {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
-    .then(() => console.log("Connected to MongoDB"))
-    .catch((err) => console.error("MongoDB connection error:", err));
+## 🛠️ My Skills
 
-// Redeem logic
-client.on("message", async (message) => {
-    if (message.body.startsWith("!redeem ")) {
-        const codeInput = message.body.split(" ")[1];
-        const userNumber = message.from;
+**Languages:**
+![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white)
+![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white)
 
-        try {
-            // Check if code exists and is valid
-            const code = await Code.findOne({ code: codeInput });
-            if (!code) {
-                return message.reply("Invalid code. Please try again.");
-            }
+**Frameworks & Tools:**
+![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black)
+![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)
 
-            // Check if code is already redeemed
-            if (code.redeemedBy) {
-                return message.reply(
-                    `Code '${codeInput}' has already been redeemed by another user.`
-                );
-            }
+---
 
-            // Check if user has already redeemed a code
-            const user = await User.findOne({ phoneNumber: userNumber });
-            if (user && user.redeemedCodes.includes(codeInput)) {
-                return message.reply(
-                    `You have already redeemed this code: '${codeInput}'.`
-                );
-            }
+## 📊 GitHub Stats
 
-            // Mark code as redeemed and assign reward
-            code.redeemedBy = userNumber;
-            code.redeemedAt = new Date();
-            await code.save();
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=DarkShadowMDbot&show_icons=true&theme=radical)
 
-            // Update user record
-            if (!user) {
-                await User.create({
-                    phoneNumber: userNumber,
-                    redeemedCodes: [codeInput],
-                });
-            } else {
-                user.redeemedCodes.push(codeInput);
-                await user.save();
-            }
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=DarkShadowMDbot&layout=compact&theme=radical)
 
-            message.reply(
-                `Congratulations! You have successfully redeemed the code '${codeInput}'. Reward: ${code.reward}`
-            );
-        } catch (err) {
-            console.error("Error redeeming code:", err);
-            message.reply("An error occurred. Please try again later.");
-        }
-    }
-});
+---
 
-// Start express server for admin interface (optional)
-const app = express();
-app.use(express.json());
+## 🖼️ Featured Projects
 
-// Endpoint for creating new codes
-app.post("/create-code", async (req, res) => {
-    const { code, reward } = req.body;
+### Project 1: **Amazing App**
+🌟 A feature-rich app to simplify your daily tasks.  
+[![Repo](https://img.shields.io/badge/-View%20Repo-2C2A4A?logo=github)](https://github.com/DarkShadowMDbot/amazing-app)
 
-    try {
-        const newCode = await Code.create({ code, reward });
-        res.status(201).json({ success: true, data: newCode });
-    } catch (err) {
-        console.error("Error creating code:", err);
-        res.status(500).json({ success: false, message: "Server error" });
-    }
-});
+### Project 2: **Open Source Contributions**
+💻 Contributing to some of the biggest open-source projects.  
+[![Repo](https://img.shields.io/badge/-View%20Contributions-2C2A4A?logo=github)](https://github.com/DarkShadowMDbot/contributions)
 
-app.listen(3000, () => {
-    console.log("Admin server running on http://localhost:3000");
-});
+---
 
-// Start WhatsApp client
-client.initialize();
+## 🌐 Let's Connect!
+
+[![LinkedIn](https://img.shields.io/badge/-LinkedIn-0077B5?logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
+[![Portfolio](https://img.shields.io/badge/-Portfolio-FF5722?logo=google-chrome&logoColor=white)](https://your-portfolio.com)
+[![Twitter](https://img.shields.io/badge/-Twitter-1DA1F2?logo=twitter&logoColor=white)](https://twitter.com/yourhandle)
+[![GitHub](https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white)](https://github.com/DarkShadowMDbot)
+
+---
+
+✨ *Thank you for visiting my profile! Feel free to explore and reach out!* ✨
